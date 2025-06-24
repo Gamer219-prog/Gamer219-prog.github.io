@@ -3,14 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube-Link zu GoogleVideo</title>
+  <title>YouTube ➜ GoogleVideo</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>YT → GoogleVideo Link</h1>
-  <input type="text" id="yt-link" placeholder="YouTube-Link hier einfügen" />
-  <button onclick="fetchDirectLink()">Umwandeln</button>
-  <p id="output"></p>
+  <div class="container">
+    <h1>YouTube ➜ GoogleVideo</h1>
+    <p>Füge einen YouTube-Link ein, um den Direktlink abzurufen (nur lokal!).</p>
+
+    <div class="input-group">
+      <input type="text" id="yt-link" placeholder="https://www.youtube.com/watch?v=..." />
+      <button onclick="fetchDirectLink()">Umwandeln</button>
+    </div>
+
+    <div id="output" class="output-box"></div>
+  </div>
+
+  <footer>
+    <p>⚠ Nur für privaten Gebrauch – kein öffentlicher Upload!</p>
+  </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
+
