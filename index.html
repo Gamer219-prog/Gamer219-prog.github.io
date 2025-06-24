@@ -145,5 +145,174 @@
         .actions a {
             flex: 1;
             text-align: center;
-            padding: 
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
 
+        .actions a:hover {
+            background: var(--primary-dark);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .disclaimer {
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--text-light);
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Direct Link Extractor</h1>
+        <p class="description">Convert YouTube links to direct .googlevideo streaming URLs</p>
+        
+        <div class="input-group">
+            <input type="text" id="ytUrl" placeholder="Paste YouTube URL (e.g., https://www.youtube.com/watch?v=...)">
+        </div>
+        
+        <div class="quality-options">
+            <select id="quality">
+                <option value="highest">Highest Quality</option>
+                <option value="lowest">Lowest Quality</option>
+                <option value="1080p">1080p (if available)</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+                <option value="360p">360p</option>
+            </select>
+        </div>
+        
+        <button id="convertBtn" onclick="convertLink()">Convert to Direct Link</button>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Extracting video link...</p>
+        </div>
+        
+        <div class="error" id="error"></div>
+        
+        <div id="result">
+            <div class="result-card">
+                <h3 class="result-title" id="videoTitle"></h3>
+                <div class="direct-link">
+                    <p><strong>Direct Video URL:</strong></p>
+                    <textarea id="directLink" rows="3" readonly></textarea>
+                </div>
+                <div class="actions">
+                    <a id="openLink" href="#" target="_blank">Open Video</a>
+                    <a id="copyLink" href="#">Copy Link</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> This tool is for educational purposes only. Direct links may violate YouTube's Terms of Service. Use at your own risk.</p>
+        </div>
+    </div>
+
+    <script>
+        const convertBtn = document.getElementById('convertBtn');
+        const loadingDiv = document.getElementById('loading');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const videoTitleEl = document.getElementById('videoTitle');
+        const directLinkEl = document.getElementById('directLink');
+        const openLinkEl = document.getElementById('openLink');
+        const copyLinkEl = document.getElementById('copyLink');
+
+        async function convertLink() {
+            const ytUrl = document.getElementById('ytUrl').value.trim();
+            const quality = document.getElementById('quality').value;
+
+            // Reset UI
+            errorDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            convertBtn.disabled = true;
+
+            if (!ytUrl) {
+                showError("Please enter a YouTube URL");
+                return;
+            }
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: ytUrl, quality: quality })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to fetch direct link");
+                }
+
+                // Display result
+                videoTitleEl.textContent = data.videoTitle || "YouTube Video";
+                directLinkEl.value = data.directLink;
+                openLinkEl.href = data.directLink;
+                resultDiv.style.display = 'block';
+
+                // Copy functionality
+                copyLinkEl.onclick = () => {
+                    directLinkEl.select();
+                    document.execCommand('copy');
+                    copyLinkEl.textContent = "Copied!";
+                    setTimeout(() => {
+                        copyLinkEl.textContent = "Copy Link";
+                    }, 2000);
+                };
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loadingDiv.style.display = 'none';
+                convertBtn.disabled = false;
+            }
+        }
+
+        function showError(message) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
