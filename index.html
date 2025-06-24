@@ -1,0 +1,21 @@
+<!-- ... wie oben ... -->
+<button onclick="getDirectLink()">Direkten Link holen</button>
+<script>
+  async function getDirectLink() {
+    const url = document.getElementById('yt-url').value;
+    const res = await fetch('/get_direct_link', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json();
+    const resultDiv = document.getElementById('result');
+    if (data.success) {
+      resultDiv.innerHTML = `
+        Direkter Link: <a href="${data.direct_url}" target="_blank">${data.direct_url}</a><br>
+        <video src="${data.direct_url}" controls width="560"></video>`;
+    } else {
+      resultDiv.innerHTML = `<span class="error">${data.error}</span>`;
+    }
+  }
+</script>
